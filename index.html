@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Molarity calculator</title>
-     <link rel="icon" href="data:image/svg+xml,
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molarity calculator</title>
+    <link rel="icon" href="data:image/svg+xml,
     %3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E
       %3Crect width='64' height='64' fill='%23007ACC' /%3E
       %3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' 
@@ -17,41 +16,51 @@
 </head>
 
 <body>
-	<h1 style="text-align: center;">Калькулятор мольных концентраций</h1>
-	<div class="molar-mass-group">
-		<label>Молекулярная масса (г/моль):</label>
-		<input type="text" id="molarMassInput" value="995.189" oninput="updateMolarMass()"> </div>
-	<div class="input-group">
-		<label>Введите концентрацию:</label>
-		<input type="text" id="concentration" placeholder="0,5 или 1e-6 или 2,5×10^-3" oninput="calculate()" />
-		<div class="unit-buttons-container">
-			<div class="unit-buttons-row">
-				<div class="unit-btn active" data-unit="pg/mL">пг/мл</div>
-				<div class="unit-btn" data-unit="pg/L">пг/л</div>
-				<div class="unit-btn" data-unit="ng/mL">нг/мл</div>
-				<div class="unit-btn" data-unit="ng/L">нг/л</div>
-				<div class="unit-btn" data-unit="mcg/mL">мкг/мл</div>
-				<div class="unit-btn" data-unit="mcg/L">мкг/л</div>
-				<div class="unit-btn" data-unit="mg/mL">мг/мл</div>
-				<div class="unit-btn" data-unit="mg/L">мг/л</div>
-			</div>
-			<div class="unit-buttons-row">
-				<div class="unit-btn" data-unit="pM">пМ</div>
-				<div class="unit-btn" data-unit="nM">нМ</div>
-				<div class="unit-btn" data-unit="uM">мкМ</div>
-				<div class="unit-btn" data-unit="mM">мМ</div>
-				<div class="unit-btn" data-unit="M">М</div>
-			</div>
-		</div>
-	</div>
-	<div class="toggle-group">
-		<div class="toggle-btn active" data-type="molar" onclick="setResultType('molar')">Мольная</div>
-		<div class="toggle-btn" data-type="mass" onclick="setResultType('mass')">Массовая</div>
-	</div>
-	<div class="results" id="results" style="display: none;">
-		<div class="results-grid" id="resultsGrid"></div>
-	</div>
+    <h1 style="text-align: center;">Калькулятор мольных концентраций</h1>
+
+    <div class="molar-mass-group">
+        <label>Молекулярная масса (г/моль):</label>
+        <input type="text" id="molarMassInput" value="995.189">
+        <!-- Убрал span id="currentMolarMass" — дублирует input -->
+    </div>
+
+    <div class="input-group">
+        <label>Введите концентрацию:</label>
+        <input
+            type="text"
+            id="concentration"
+            placeholder="0,5 или 1e-6 или 2,5×10^-3"
+        />
+        <div class="unit-buttons-container">
+            <div class="unit-buttons-row">
+                <div class="unit-btn active" data-unit="pg/mL">пг/мл</div>
+                <div class="unit-btn" data-unit="pg/L">пг/л</div>
+                <div class="unit-btn" data-unit="ng/mL">нг/мл</div>
+                <div class="unit-btn" data-unit="ng/L">нг/л</div>
+                <div class="unit-btn" data-unit="mcg/mL">мкг/мл</div>
+                <div class="unit-btn" data-unit="mcg/L">мкг/л</div>
+                <div class="unit-btn" data-unit="mg/mL">мг/мл</div>
+                <div class="unit-btn" data-unit="mg/L">мг/л</div>
+            </div>
+            <div class="unit-buttons-row">
+                <div class="unit-btn" data-unit="pM">пМ</div>
+                <div class="unit-btn" data-unit="nM">нМ</div>
+                <div class="unit-btn" data-unit="uM">мкМ</div>
+                <div class="unit-btn" data-unit="mM">мМ</div>
+                <div class="unit-btn" data-unit="M">М</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggle-group">
+        <div class="toggle-btn active" data-type="molar">Мольная</div>
+        <div class="toggle-btn" data-type="mass">Массовая</div>
+    </div>
+
+    <div class="results" id="results" style="display: none;">
+        <div class="results-grid" id="resultsGrid"></div>
+    </div>
+
     <script src="script.js"></script>
 </body>
-
 </html>
