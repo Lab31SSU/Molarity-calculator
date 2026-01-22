@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пересчет мольных концентраций</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 700px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .input-group { margin-bottom: 20px; text-align: center; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 1.2em; }
+        input { 
+            padding: 15px; 
+            font-size: 20px; 
+            width: 250px; 
+            border: 2px solid #007bff; 
+            border-radius: 8px;
+            text-align: center;
+        }
+        .unit-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 15px;
+            max-width: 600px;
+        }
+        .unit-btn {
+            padding: 8px 12px;
+            background: #e9ecef;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .unit-btn:hover, .unit-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        .results { 
+            margin-top: 30px; 
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .result-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        .result-item:last-child { border-bottom: none; }
+        .unit { font-weight: bold; color: #007bff; width: 40px; }
+        .value { font-family: monospace; min-width: 180px; }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .results-column {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .column-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .triple-format {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .sci-format, .plain-format, .latex-format {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .sci-format { color: #dc3545; }
+        .plain-format { color: #28a745; font-weight: bold; }
+        .latex-format { color: #6f42c1; }
+    </style>
+</head>
+<body>
+    <h1>Калькулятор мольных концентраций</h1>
+    <p style="text-align: center; font-size: 1.1em;">Молекулярная масса: 995,189 г/моль</p>
+    
+    <div class="input-group">
+        <label>Введите концентрацию:</label>
+        <input type="text" id="concentration" placeholder="0,5 или 1e-6 или 2,5×10^-3" 
+               oninput="calculate()" />
+        <div class="unit-buttons">
+            <div class="unit-btn active" data-unit="pg/mL">пг/мл</div>
+            <div class="unit-btn" data-unit="ng/mL">нг/мл</div>
+            <div class="unit-btn" data-unit="mcg/mL">мкг/мл</div>
+            <div class="unit-btn" data-unit="mg/mL">мг/мл</div>
+            <div class="unit-btn" data-unit="pg/L">пг/л</div>
+            <div class="unit-btn" data-unit="ng/L">нг/л</div>
+            <div class="unit-btn" data-unit="mcg/L">мкг/л</div>
+            <div class="unit-btn" data-unit="mg/L">мг/л</div>
+            <div class="unit-btn" data-unit="pM">пМ</div>
+            <div class="unit-btn" data-unit="nM">нМ</div>
+            <div class="unit-btn" data-unit="uM">мкМ</div>
+            <div class="unit-btn" data-unit="mM">мМ</div>
+            <div class="unit-btn" data-unit="M">М</div>
+        </div>
+    </div>
+    
+    <div class="results" id="results" style="display: none;">
+        <div class="results-grid">
+            <div class="results-column">
+                <div class="column-title">Молярные концентрации</div>
+                <div class="result-item">
+                    <span class="unit">пМ:</span> 
+                    <div class="triple-format">
+                        <div class="sci-format" id="pM_sci">1.005⋅10⁰</div>
+                        <div class="plain-format" id="pM_plain">1.005</div>
+                        <div class="latex-format" id="pM_latex">$1.005 \cdot 10^{0}$</div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <span class="unit">нМ:</span> 
+                    <div class="triple-format">
+                        <div class="sci-format" id="nM_sci">1.005⋅10⁰</div>
+                        <div class="plain-format" id="nM_plain">1.005</div>
+                        <div class="latex-format" id="nM_latex">$1.005 \cdot 10^{0}$</div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <span class="unit">мкМ:</span> 
+                    <div class="triple-format">
+                        <div class="sci-format" id="uM_sci">1.005⋅10⁰</div>
+                        <div class="plain-format" id="uM_plain">1.005</div>
+                        <div class="latex-format" id="uM_latex">$1.005 \cdot 10^{0}$</div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <span class="unit">мМ:</span> 
+                    <div class="triple-format">
+                        <div class="sci-format" id="mM_sci">1.005⋅10⁰</div>
+                        <div class="plain-format" id="mM_plain">1.005</div>
+                        <div class="latex-format" id="mM_latex">$1.005 \cdot 10^{0}$</div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <span class="unit">М:</span> 
+                    <div class="triple-format">
+                        <div class="sci-format" id="M_sci">1.005⋅10⁰</div>
+                        <div class="plain-format" id="M_plain">1.005</div>
+                        <div class="latex-format" id="M_latex">$1.005 \cdot 10^{0}$</div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-column">
+                <div class="column-title">Массовая концентрация</div>
+                <div class="result-item"><span class="unit">пг/мл:</span> <span class="value" id="pgML">0</span></div>
+                <div class="result-item"><span class="unit">нг/мл:</span> <span class="value" id="ngML">0</span></div>
+                <div class="result-item"><span class="unit">мкг/мл:</span> <span class="value" id="mcgML">0</span></div>
+                <div class="result-item"><span class="unit">мг/мл:</span> <span class="value" id="mgML">0</span></div>
+                <div class="result-item"><span class="unit">мкг/л:</span> <span class="value" id="mcgL">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MOLAR_MASS = 995.189; // г/моль
+        let currentUnit = 'pg/mL';
+
+        function parseConcentration(value) {
+            if (!value) return NaN;
+            value = value.replace(',', '.');
+            value = value.replace(/×/g, 'e').replace(/ /g, '').toLowerCase();
+            return parseFloat(value);
+        }
+
+        function convertToMolar(concentration, unit) {
+            let concInM = 0;
+            switch(unit) {
+                case 'pg/mL': concInM = (concentration * 1e-12 * 1000) / MOLAR_MASS; break;
+                case 'ng/mL': concInM = (concentration * 1e-9 * 1000) / MOLAR_MASS; break;
+                case 'mcg/mL': concInM = (concentration * 1e-6 * 1000) / MOLAR_MASS; break;
+                case 'mg/mL': concInM = (concentration * 1e-3 * 1000) / MOLAR_MASS; break;
+                case 'pg/L': concInM = (concentration * 1e-12) / MOLAR_MASS; break;
+                case 'ng/L': concInM = (concentration * 1e-9) / MOLAR_MASS; break;
+                case 'mcg/L': concInM = (concentration * 1e-6) / MOLAR_MASS; break;
+                case 'mg/L': concInM = (concentration * 1e-3) / MOLAR_MASS; break;
+                case 'pM': concInM = concentration * 1e-12; break;
+                case 'nM': concInM = concentration * 1e-9; break;
+                case 'uM': concInM = concentration * 1e-6; break;
+                case 'mM': concInM = concentration * 1e-3; break;
+                case 'M': concInM = concentration; break;
+            }
+            return concInM;
+        }
+
+        function formatScientific(num) {
+            if (Math.abs(num) < 1e-15) return '0';
+            const exp = Math.floor(Math.log10(Math.abs(num)));
+            const coeff = num / Math.pow(10, exp);
+            return `${coeff.toFixed(3)}⋅10<sup>${exp}</sup>`;
+        }
+
+        function formatPlain(num) {
+            if (Math.abs(num) < 1e-15) return '0';
+            return parseFloat(num.toFixed(5));
+        }
+
+        function formatLatex(num) {
+            if (Math.abs(num) < 1e-15) return '$0$';
+            const exp = Math.floor(Math.log10(Math.abs(num)));
+            const coeff = num / Math.pow(10, exp);
+            return `$${coeff.toFixed(3)} \\cdot 10^{${exp}}$`;
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) < 1e-15) return '0';
+            if (Math.abs(num) < 1e-12) return num.toExponential(2);
+            return num.toExponential(3);
+        }
+
+        function calculate() {
+            const value = document.getElementById('concentration').value;
+            if (!value) {
+                document.getElementById('results').style.display = 'none';
+                return;
+            }
+            
+            const conc = parseConcentration(value);
+            if (isNaN(conc) || conc <= 0) {
+                document.getElementById('results').style.display = 'none';
+                return;
+            }
+            
+            const molar = convertToMolar(conc, currentUnit);
+            
+            // Молярные в трех форматах
+            const units = {
+                pM: molar * 1e12,
+                nM: molar * 1e9,
+                uM: molar * 1e6,
+                mM: molar * 1e3,
+                M: molar
+            };
+            
+            Object.keys(units).forEach(unit => {
+                document.getElementById(unit + '_sci').innerHTML = formatScientific(units[unit]);
+                document.getElementById(unit + '_plain').textContent = formatPlain(units[unit]);
+                document.getElementById(unit + '_latex').textContent = formatLatex(units[unit]);
+            });
+            
+            // Массовые
+            document.getElementById('pgML').textContent = formatNumber(molar * MOLAR_MASS * 1e9 * 1e-3);
+            document.getElementById('ngML').textContent = formatNumber(molar * MOLAR_MASS * 1e6 * 1e-3);
+            document.getElementById('mcgML').textContent = formatNumber(molar * MOLAR_MASS * 1e3 * 1e-3);
+            document.getElementById('mgML').textContent = formatNumber(molar * MOLAR_MASS * 1e-3);
+            document.getElementById('mcgL').textContent = formatNumber(molar * MOLAR_MASS * 1e3 * 1e-6);
+            
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Обработчики кнопок единиц
+        document.querySelectorAll('.unit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentUnit = this.dataset.unit;
+                calculate();
+            });
+        });
+
+        document.getElementById('concentration').addEventListener('input', calculate);
+    </script>
+</body>
+</html>
