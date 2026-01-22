@@ -7,7 +7,6 @@
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 800px; 
             margin: 50px auto; 
             padding: 20px; 
         }
@@ -16,13 +15,13 @@
         input { 
             padding: 15px; 
             font-size: 20px; 
-            width: 250px; 
+            width: 500px; 
             border: 2px solid #007bff; 
             border-radius: 8px;
             text-align: center;
         }
         .molar-mass-group {
-            background: #e7f3ff;
+            background: #fdfeff;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -33,13 +32,22 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
-        .unit-buttons {
+        .unit-buttons-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            justify-content: center;
-            margin-top: 15px;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+            width: 100%;
             max-width: 700px;
+            margin: 15px auto 0;
+            padding-left: 10%;
+        }
+        .unit-buttons-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 5px;
+            justify-content: flex-start;
+            width: 100%;
         }
         .unit-btn {
             padding: 8px 12px;
@@ -50,6 +58,11 @@
             font-size: 13px;
             transition: all 0.2s;
             white-space: nowrap;
+            width: 72px;
+            height: 36px;
+            text-align: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
         }
         .unit-btn:hover, .unit-btn.active {
             background: #007bff;
@@ -82,27 +95,49 @@
             color: #ffffff;
         }
         .results { 
-            margin-top: 30px; 
-            background: #f8f9fa;
+            margin: 30px auto; 
+            background: #ffffff;
             padding: 20px;
             border-radius: 10px;
+            width: 85%;
+            max-width: 1500px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
         }
         .result-item { 
             display: flex; 
             justify-content: space-between; 
-            padding: 10px 0; 
+            align-items: flex-start;
+            padding: 12px 0; 
             border-bottom: 1px solid #dee2e6;
             font-size: 14px;
         }
         .result-item:last-child { border-bottom: none; }
-        .unit { font-weight: bold; color: #007bff; width: 50px; }
+        .unit { 
+            font-weight: bold; 
+            color: #007bff; 
+            width: 60px; 
+            flex-shrink: 0;
+        }
+        .format-row {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
         .format-item {
             font-family: monospace;
             font-size: 14px;
             cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 3px;
-            transition: background 0.2s;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: right;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: none;
         }
         .format-item:hover {
             background: #e3f2fd;
@@ -111,21 +146,28 @@
         .plain-format { color: #28a745; font-weight: bold; }
         .latex-format { color: #6f42c1; }
         .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
+            width: 100%;
+        }
+        .results-column.full-width {
+            margin: 30px auto; 
+            width: 97%;
         }
         .results-column {
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
         }
         .column-title {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #007bff;
             font-weight: bold;
+            font-size: 16px;
         }
         .copied {
             background: #d4edda !important;
@@ -136,37 +178,56 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .results {
+                width: 95%;
+                margin: 20px auto;
+            }
+            .unit-buttons-row {
+                gap: 3px;
+            }
+            .unit-btn {
+                width: 64px;
+                height: 32px;
+                font-size: 12px;
+                padding: 6px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Калькулятор мольных концентраций</h1>
-    
+    <h1 style="text-align: center;">Калькулятор мольных концентраций</h1>
     <div class="molar-mass-group">
-        <div class="molar-mass-label">Молекулярная масса (г/моль):</div>
+        <label>Молекулярная масса (г/моль):</label>
         <input type="text" id="molarMassInput" value="995.189" oninput="updateMolarMass()">
-        <div style="font-size: 12px; color: #666; margin-top: 5px;">
-            Текущее значение: <span id="currentMolarMass">995.189</span> г/моль
-        </div>
     </div>
     
     <div class="input-group">
         <label>Введите концентрацию:</label>
         <input type="text" id="concentration" placeholder="0,5 или 1e-6 или 2,5×10^-3" 
                oninput="calculate()" />
-        <div class="unit-buttons">
-            <div class="unit-btn active" data-unit="pg/mL">пг/мл</div>
-            <div class="unit-btn" data-unit="ng/mL">нг/мл</div>
-            <div class="unit-btn" data-unit="mcg/mL">мкг/мл</div>
-            <div class="unit-btn" data-unit="mg/mL">мг/мл</div>
-            <div class="unit-btn" data-unit="pg/L">пг/л</div>
-            <div class="unit-btn" data-unit="ng/L">нг/л</div>
-            <div class="unit-btn" data-unit="mcg/L">мкг/л</div>
-            <div class="unit-btn" data-unit="mg/L">мг/л</div>
-            <div class="unit-btn" data-unit="pM">пМ</div>
-            <div class="unit-btn" data-unit="nM">нМ</div>
-            <div class="unit-btn" data-unit="uM">мкМ</div>
-            <div class="unit-btn" data-unit="mM">мМ</div>
-            <div class="unit-btn" data-unit="M">М</div>
+        <div class="unit-buttons-container">
+            <div class="unit-buttons-row">
+                <div class="unit-btn active" data-unit="pg/mL">пг/мл</div>
+                <div class="unit-btn" data-unit="pg/L">пг/л</div>
+                <div class="unit-btn" data-unit="ng/mL">нг/мл</div>
+                <div class="unit-btn" data-unit="ng/L">нг/л</div>
+                <div class="unit-btn" data-unit="mcg/mL">мкг/мл</div>
+                <div class="unit-btn" data-unit="mcg/L">мкг/л</div>
+                <div class="unit-btn" data-unit="mg/mL">мг/мл</div>
+                <div class="unit-btn" data-unit="mg/L">мг/л</div>
+            </div>
+            <div class="unit-buttons-row">
+                <div class="unit-btn" data-unit="pM">пМ</div>
+                <div class="unit-btn" data-unit="nM">нМ</div>
+                <div class="unit-btn" data-unit="uM">мкМ</div>
+                <div class="unit-btn" data-unit="mM">мМ</div>
+                <div class="unit-btn" data-unit="M">М</div>
+            </div>
         </div>
     </div>
     
@@ -206,17 +267,10 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                const element = event.target;
-                element.classList.add('copied');
-                setTimeout(() => element.classList.remove('copied'), 500);
-            }).catch(() => {
-                // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
+                event.target.classList.add('copied');
+                setTimeout(() => event.target.classList.remove('copied'), 500);
+            }).catch(err => {
+                console.log('Failed to copy: ', err);
             });
         }
 
@@ -267,22 +321,21 @@
         }
 
         function generateMolarHTML() {
+            const units = ['пМ', 'нМ', 'мкМ', 'мМ', 'М'];
+            const ids = ['pm', 'nm', 'mkm', 'mm', 'm'];
             return `
-                <div class="results-column">
+                <div class="results-column full-width">
                     <div class="column-title">Молярные концентрации</div>
-                    ${['пМ', 'нМ', 'мкМ', 'мМ', 'М'].map((unit, i) => {
-                        const multipliers = [1e12, 1e9, 1e6, 1e3, 1];
-                        return `
-                            <div class="result-item">
-                                <span class="unit">${unit}:</span>
-                                <div style="display: flex; gap: 8px;">
-                                    <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_sci">0</div>
-                                    <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_plain">0</div>
-                                    <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_latex">$0$</div>
-                                </div>
+                    ${units.map((unit, i) => `
+                        <div class="result-item">
+                            <span class="unit">${unit}:</span>
+                            <div class="format-row">
+                                <div class="format-item sci-format" onclick="copyToClipboard(event.target.textContent)" id="${ids[i]}_sci">0</div>
+                                <div class="format-item plain-format" onclick="copyToClipboard(event.target.textContent)" id="${ids[i]}_plain">0</div>
+                                <div class="format-item latex-format" onclick="copyToClipboard(event.target.textContent)" id="${ids[i]}_latex">$0$</div>
                             </div>
-                        `;
-                    }).join('')}
+                        </div>
+                    `).join('')}
                 </div>
             `;
         }
@@ -290,19 +343,17 @@
         function generateMassHTML() {
             const units_ml = ['пг/мл', 'нг/мл', 'мкг/мл', 'мг/мл'];
             const units_l = ['пг/л', 'нг/л', 'мкг/л', 'мг/л'];
-            const multipliers_ml = [1e9*1e-3, 1e6*1e-3, 1e3*1e-3, 1e-3];
-            const multipliers_l = [1e9*1e-6, 1e6*1e-6, 1e3*1e-6, 1e-6];
-
+            
             return `
                 <div class="results-column">
                     <div class="column-title">Массовая (мл)</div>
                     ${units_ml.map((unit, i) => `
                         <div class="result-item">
                             <span class="unit">${unit}:</span>
-                            <div style="display: flex; gap: 8px;">
-                                <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_sci">0</div>
-                                <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_plain">0</div>
-                                <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_latex">$0$</div>
+                            <div class="format-row">
+                                <div class="format-item sci-format" onclick="copyToClipboard(event.target.textContent)" id="ml_${i}_sci">0</div>
+                                <div class="format-item plain-format" onclick="copyToClipboard(event.target.textContent)" id="ml_${i}_plain">0</div>
+                                <div class="format-item latex-format" onclick="copyToClipboard(event.target.textContent)" id="ml_${i}_latex">$0$</div>
                             </div>
                         </div>
                     `).join('')}
@@ -312,10 +363,10 @@
                     ${units_l.map((unit, i) => `
                         <div class="result-item">
                             <span class="unit">${unit}:</span>
-                            <div style="display: flex; gap: 8px;">
-                                <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_sci">0</div>
-                                <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_plain">0</div>
-                                <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_latex">$0$</div>
+                            <div class="format-row">
+                                <div class="format-item sci-format" onclick="copyToClipboard(event.target.textContent)" id="l_${i}_sci">0</div>
+                                <div class="format-item plain-format" onclick="copyToClipboard(event.target.textContent)" id="l_${i}_plain">0</div>
+                                <div class="format-item latex-format" onclick="copyToClipboard(event.target.textContent)" id="l_${i}_latex">$0$</div>
                             </div>
                         </div>
                     `).join('')}
@@ -340,51 +391,50 @@
             
             if (resultType === 'molar') {
                 document.getElementById('resultsGrid').innerHTML = generateMolarHTML();
-                const units = {пМ: 1e12, нМ: 1e9, мкМ: 1e6, мМ: 1e3, М: 1};
-                Object.keys(units).forEach(unit => {
-                    const val = molar * units[unit];
-                    document.getElementById(unit.toLowerCase() + '_sci').innerHTML = formatScientific(val);
-                    document.getElementById(unit.toLowerCase() + '_plain').textContent = formatPlain(val);
-                    document.getElementById(unit.toLowerCase() + '_latex').textContent = formatLatex(val);
+                const multipliers = [1e12, 1e9, 1e6, 1e3, 1];
+                const ids = ['pm', 'nm', 'mkm', 'mm', 'm'];
+                multipliers.forEach((mult, i) => {
+                    const val = molar * mult;
+                    document.getElementById(ids[i] + '_sci').innerHTML = formatScientific(val);
+                    document.getElementById(ids[i] + '_plain').textContent = formatPlain(val);
+                    document.getElementById(ids[i] + '_latex').textContent = formatLatex(val);
                 });
             } else {
                 document.getElementById('resultsGrid').innerHTML = generateMassHTML();
                 const ml_mult = [1e9*1e-3, 1e6*1e-3, 1e3*1e-3, 1e-3];
                 const l_mult = [1e9*1e-6, 1e6*1e-6, 1e3*1e-6, 1e-6];
                 
-                ['пг/мл','нг/мл','мкг/мл','мг/мл'].forEach((unit,i) => {
-                    const val = molar * MOLAR_MASS * ml_mult[i];
-                    const id = 'mass_' + unit.replace(/[\/]/g,'');
-                    document.getElementById(id + '_sci').innerHTML = formatScientific(val);
-                    document.getElementById(id + '_plain').textContent = formatPlain(val);
-                    document.getElementById(id + '_latex').textContent = formatLatex(val);
+                ml_mult.forEach((mult, i) => {
+                    const val = molar * MOLAR_MASS * mult;
+                    document.getElementById(`ml_${i}_sci`).innerHTML = formatScientific(val);
+                    document.getElementById(`ml_${i}_plain`).textContent = formatPlain(val);
+                    document.getElementById(`ml_${i}_latex`).textContent = formatLatex(val);
                 });
                 
-                ['пг/л','нг/л','мкг/л','мг/л'].forEach((unit,i) => {
-                    const val = molar * MOLAR_MASS * l_mult[i];
-                    const id = 'mass_' + unit.replace(/[\/]/g,'');
-                    document.getElementById(id + '_sci').innerHTML = formatScientific(val);
-                    document.getElementById(id + '_plain').textContent = formatPlain(val);
-                    document.getElementById(id + '_latex').textContent = formatLatex(val);
+                l_mult.forEach((mult, i) => {
+                    const val = molar * MOLAR_MASS * mult;
+                    document.getElementById(`l_${i}_sci`).innerHTML = formatScientific(val);
+                    document.getElementById(`l_${i}_plain`).textContent = formatPlain(val);
+                    document.getElementById(`l_${i}_latex`).textContent = formatLatex(val);
                 });
             }
             
             document.getElementById('results').style.display = 'block';
         }
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.unit-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentUnit = this.dataset.unit;
-                    calculate();
-                });
-            });
-            document.getElementById('concentration').addEventListener('input', calculate);
-            updateMolarMass();
+// Инициализация - ПРАВИЛЬНАЯ версия
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentUnit = this.dataset.unit;
+            calculate();
         });
+    });
+    document.getElementById('concentration').addEventListener('input', calculate);
+    updateMolarMass(); // ✅ Теперь безопасно
+});
     </script>
 </body>
 </html>
