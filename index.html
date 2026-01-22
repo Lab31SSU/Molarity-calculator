@@ -12,21 +12,26 @@
             padding: 20px; 
         }
         .input-group { margin-bottom: 20px; text-align: center; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 1.2em; }
         input { 
-            padding: 12px; 
-            font-size: 18px; 
-            width: 200px; 
+            padding: 15px; 
+            font-size: 20px; 
+            width: 250px; 
             border: 2px solid #007bff; 
             border-radius: 8px;
             text-align: center;
-            margin: 5px;
         }
         .molar-mass-group {
             background: #e7f3ff;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+            text-align: center;
+        }
+        .molar-mass-label {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
         .unit-buttons {
             display: flex;
@@ -55,17 +60,26 @@
             margin: 20px 0;
         }
         .toggle-btn {
-            padding: 10px 20px;
-            margin: 0 10px;
-            border: 2px solid #28a745;
-            background: white;
+            display: inline-flex;
+            align-items: center;
+            height: 32px;
+            padding: 0 16px;
+            margin: 0 4px;
+            border: 1px solid #d2d2d7;
+            background: #ffffff;
             cursor: pointer;
-            border-radius: 20px;
-            font-weight: bold;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #007aff;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover {
+            background: #f2f2f7;
         }
         .toggle-btn.active {
-            background: #28a745;
-            color: white;
+            background: #007aff;
+            color: #ffffff;
         }
         .results { 
             margin-top: 30px; 
@@ -82,21 +96,16 @@
         }
         .result-item:last-child { border-bottom: none; }
         .unit { font-weight: bold; color: #007bff; width: 50px; }
-        .triple-format {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            min-width: 200px;
-            cursor: pointer;
-            padding: 2px;
-            border-radius: 4px;
-        }
-        .triple-format:hover {
-            background: #e3f2fd;
-        }
-        .sci-format, .plain-format, .latex-format {
+        .format-item {
             font-family: monospace;
             font-size: 14px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .format-item:hover {
+            background: #e3f2fd;
         }
         .sci-format { color: #dc3545; }
         .plain-format { color: #28a745; font-weight: bold; }
@@ -124,7 +133,7 @@
         }
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
     </style>
@@ -133,7 +142,7 @@
     <h1>Калькулятор мольных концентраций</h1>
     
     <div class="molar-mass-group">
-        <label>Молекулярная масса (г/моль):</label>
+        <div class="molar-mass-label">Молекулярная масса (г/моль):</div>
         <input type="text" id="molarMassInput" value="995.189" oninput="updateMolarMass()">
         <div style="font-size: 12px; color: #666; margin-top: 5px;">
             Текущее значение: <span id="currentMolarMass">995.189</span> г/моль
@@ -162,20 +171,18 @@
     </div>
     
     <div class="toggle-group">
-        <div class="toggle-btn active" onclick="setResultType('molar')">Мольная концентрация</div>
-        <div class="toggle-btn" onclick="setResultType('mass')">Массовая концентрация</div>
+        <div class="toggle-btn active" data-type="molar" onclick="setResultType('molar')">Мольная</div>
+        <div class="toggle-btn" data-type="mass" onclick="setResultType('mass')">Массовая</div>
     </div>
     
     <div class="results" id="results" style="display: none;">
-        <div class="results-grid" id="resultsGrid">
-            <!-- Результаты будут здесь -->
-        </div>
+        <div class="results-grid" id="resultsGrid"></div>
     </div>
 
     <script>
         let MOLAR_MASS = 995.189;
         let currentUnit = 'pg/mL';
-        let resultType = 'molar'; // 'molar' или 'mass'
+        let resultType = 'molar';
 
         function updateMolarMass() {
             const input = document.getElementById('molarMassInput').value;
@@ -199,10 +206,17 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Анимация копирования
                 const element = event.target;
                 element.classList.add('copied');
                 setTimeout(() => element.classList.remove('copied'), 500);
+            }).catch(() => {
+                // Fallback для старых браузеров
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
             });
         }
 
@@ -252,135 +266,61 @@
             return `$${coeff.toFixed(3)} \\cdot 10^{${exp}}$`;
         }
 
-        function generateResultsHTML() {
-            if (resultType === 'molar') {
-                return `
-                    <div class="results-column">
-                        <div class="column-title">Молярные концентрации</div>
+        function generateMolarHTML() {
+            return `
+                <div class="results-column">
+                    <div class="column-title">Молярные концентрации</div>
+                    ${['пМ', 'нМ', 'мкМ', 'мМ', 'М'].map((unit, i) => {
+                        const multipliers = [1e12, 1e9, 1e6, 1e3, 1];
+                        return `
+                            <div class="result-item">
+                                <span class="unit">${unit}:</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_sci">0</div>
+                                    <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_plain">0</div>
+                                    <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="${unit.toLowerCase()}_latex">$0$</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function generateMassHTML() {
+            const units_ml = ['пг/мл', 'нг/мл', 'мкг/мл', 'мг/мл'];
+            const units_l = ['пг/л', 'нг/л', 'мкг/л', 'мг/л'];
+            const multipliers_ml = [1e9*1e-3, 1e6*1e-3, 1e3*1e-3, 1e-3];
+            const multipliers_l = [1e9*1e-6, 1e6*1e-6, 1e3*1e-6, 1e-6];
+
+            return `
+                <div class="results-column">
+                    <div class="column-title">Массовая (мл)</div>
+                    ${units_ml.map((unit, i) => `
                         <div class="result-item">
-                            <span class="unit">пМ:</span> 
-                            <div class="triple-format" ondblclick="copyToClipboard(event.target.textContent)">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pM_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pM_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pM_latex">$0$</div>
+                            <span class="unit">${unit}:</span>
+                            <div style="display: flex; gap: 8px;">
+                                <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_sci">0</div>
+                                <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_plain">0</div>
+                                <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_latex">$0$</div>
                             </div>
                         </div>
+                    `).join('')}
+                </div>
+                <div class="results-column">
+                    <div class="column-title">Массовая (л)</div>
+                    ${units_l.map((unit, i) => `
                         <div class="result-item">
-                            <span class="unit">нМ:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="nM_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="nM_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="nM_latex">$0$</div>
+                            <span class="unit">${unit}:</span>
+                            <div style="display: flex; gap: 8px;">
+                                <div class="format-item sci-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_sci">0</div>
+                                <div class="format-item plain-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_plain">0</div>
+                                <div class="format-item latex-format" ondblclick="copyToClipboard(event.target.textContent)" id="mass_${unit.replace(/[\/]/g,'')}_latex">$0$</div>
                             </div>
                         </div>
-                        <div class="result-item">
-                            <span class="unit">мкМ:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="uM_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="uM_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="uM_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">мМ:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mM_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mM_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mM_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">М:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="M_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="M_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="M_latex">$0$</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="results-column">
-                        <div class="column-title">Массовая концентрация</div>
-                        <div class="result-item"><span class="unit">пг/мл:</span> <span class="value" id="pgML">0</span></div>
-                        <div class="result-item"><span class="unit">нг/мл:</span> <span class="value" id="ngML">0</span></div>
-                        <div class="result-item"><span class="unit">мкг/мл:</span> <span class="value" id="mcgML">0</span></div>
-                        <div class="result-item"><span class="unit">мг/мл:</span> <span class="value" id="mgML">0</span></div>
-                        <div class="result-item"><span class="unit">мкг/л:</span> <span class="value" id="mcgL">0</span></div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="results-column">
-                        <div class="column-title">Массовая концентрация (мл)</div>
-                        <div class="result-item">
-                            <span class="unit">пг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_ml_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_ml_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_ml_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <div class="unit">нг:</div> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_ml_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_ml_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_ml_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">мкг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_ml_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_ml_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_ml_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">мг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_ml_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_ml_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_ml_latex">$0$</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="results-column">
-                        <div class="column-title">Массовая концентрация (л)</div>
-                        <div class="result-item">
-                            <span class="unit">пг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_l_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_l_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="pg_l_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">нг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_l_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_l_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="ng_l_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">мкг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_l_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_l_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mcg_l_latex">$0$</div>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="unit">мг:</span> 
-                            <div class="triple-format">
-                                <div class="sci-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_l_sci">0</div>
-                                <div class="plain-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_l_plain">0</div>
-                                <div class="latex-format" title="Двойной клик для копирования" ondblclick="copyToClipboard(event.target.textContent)" id="mg_l_latex">$0$</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
+                    `).join('')}
+                </div>
+            `;
         }
 
         function calculate() {
@@ -397,77 +337,54 @@
             }
             
             const molar = convertToMolar(conc, currentUnit);
-            document.getElementById('resultsGrid').innerHTML = generateResultsHTML();
             
             if (resultType === 'molar') {
-                const units = {
-                    pM: molar * 1e12, nM: molar * 1e9, uM: molar * 1e6, 
-                    mM: molar * 1e3, M: molar
-                };
-                
+                document.getElementById('resultsGrid').innerHTML = generateMolarHTML();
+                const units = {пМ: 1e12, нМ: 1e9, мкМ: 1e6, мМ: 1e3, М: 1};
                 Object.keys(units).forEach(unit => {
-                    document.getElementById(unit + '_sci').innerHTML = formatScientific(units[unit]);
-                    document.getElementById(unit + '_plain').textContent = formatPlain(units[unit]);
-                    document.getElementById(unit + '_latex').textContent = formatLatex(units[unit]);
+                    const val = molar * units[unit];
+                    document.getElementById(unit.toLowerCase() + '_sci').innerHTML = formatScientific(val);
+                    document.getElementById(unit.toLowerCase() + '_plain').textContent = formatPlain(val);
+                    document.getElementById(unit.toLowerCase() + '_latex').textContent = formatLatex(val);
                 });
-
-                // Простые массовые
-                document.getElementById('pgML').textContent = formatPlain(molar * MOLAR_MASS * 1e9 * 1e-3);
-                document.getElementById('ngML').textContent = formatPlain(molar * MOLAR_MASS * 1e6 * 1e-3);
-                document.getElementById('mcgML').textContent = formatPlain(molar * MOLAR_MASS * 1e3 * 1e-3);
-                document.getElementById('mgML').textContent = formatPlain(molar * MOLAR_MASS * 1e-3);
-                document.getElementById('mcgL').textContent = formatPlain(molar * MOLAR_MASS * 1e3 * 1e-6);
             } else {
-                // Массовые в трех форматах (на мл)
-                document.getElementById('pg_ml_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e9 * 1e-3);
-                document.getElementById('pg_ml_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e9 * 1e-3);
-                document.getElementById('pg_ml_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e9 * 1e-3);
+                document.getElementById('resultsGrid').innerHTML = generateMassHTML();
+                const ml_mult = [1e9*1e-3, 1e6*1e-3, 1e3*1e-3, 1e-3];
+                const l_mult = [1e9*1e-6, 1e6*1e-6, 1e3*1e-6, 1e-6];
                 
-                document.getElementById('ng_ml_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e6 * 1e-3);
-                document.getElementById('ng_ml_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e6 * 1e-3);
-                document.getElementById('ng_ml_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e6 * 1e-3);
+                ['пг/мл','нг/мл','мкг/мл','мг/мл'].forEach((unit,i) => {
+                    const val = molar * MOLAR_MASS * ml_mult[i];
+                    const id = 'mass_' + unit.replace(/[\/]/g,'');
+                    document.getElementById(id + '_sci').innerHTML = formatScientific(val);
+                    document.getElementById(id + '_plain').textContent = formatPlain(val);
+                    document.getElementById(id + '_latex').textContent = formatLatex(val);
+                });
                 
-                document.getElementById('mcg_ml_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e3 * 1e-3);
-                document.getElementById('mcg_ml_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e3 * 1e-3);
-                document.getElementById('mcg_ml_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e3 * 1e-3);
-                
-                document.getElementById('mg_ml_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e-3);
-                document.getElementById('mg_ml_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e-3);
-                document.getElementById('mg_ml_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e-3);
-                
-                // На литр
-                document.getElementById('pg_l_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e9 * 1e-6);
-                document.getElementById('pg_l_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e9 * 1e-6);
-                document.getElementById('pg_l_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e9 * 1e-6);
-                
-                document.getElementById('ng_l_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e6 * 1e-6);
-                document.getElementById('ng_l_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e6 * 1e-6);
-                document.getElementById('ng_l_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e6 * 1e-6);
-                
-                document.getElementById('mcg_l_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e3 * 1e-6);
-                document.getElementById('mcg_l_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e3 * 1e-6);
-                document.getElementById('mcg_l_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e3 * 1e-6);
-                
-                document.getElementById('mg_l_sci').innerHTML = formatScientific(molar * MOLAR_MASS * 1e-6);
-                document.getElementById('mg_l_plain').textContent = formatPlain(molar * MOLAR_MASS * 1e-6);
-                document.getElementById('mg_l_latex').textContent = formatLatex(molar * MOLAR_MASS * 1e-6);
+                ['пг/л','нг/л','мкг/л','мг/л'].forEach((unit,i) => {
+                    const val = molar * MOLAR_MASS * l_mult[i];
+                    const id = 'mass_' + unit.replace(/[\/]/g,'');
+                    document.getElementById(id + '_sci').innerHTML = formatScientific(val);
+                    document.getElementById(id + '_plain').textContent = formatPlain(val);
+                    document.getElementById(id + '_latex').textContent = formatLatex(val);
+                });
             }
             
             document.getElementById('results').style.display = 'block';
         }
 
-        // Обработчики событий
-        document.querySelectorAll('.unit-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentUnit = this.dataset.unit;
-                calculate();
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.unit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentUnit = this.dataset.unit;
+                    calculate();
+                });
             });
+            document.getElementById('concentration').addEventListener('input', calculate);
+            updateMolarMass();
         });
-
-        document.getElementById('concentration').addEventListener('input', calculate);
-        updateMolarMass(); // Инициализация
     </script>
 </body>
 </html>
