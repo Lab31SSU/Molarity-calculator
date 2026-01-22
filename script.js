@@ -59,19 +59,19 @@ function formatScientific(num) {
     if (Math.abs(num) < 1e-15) return '0';
     const exp = Math.floor(Math.log10(Math.abs(num)));
     const coeff = num / Math.pow(10, exp);
-    return `${coeff.toFixed(3)}⋅10<sup>${exp}</sup>`;
+    return `${coeff.toFixed(1)}⋅10<sup>${exp}</sup>`;
 }
 
 function formatPlain(num) {
     if (Math.abs(num) < 1e-15) return '0';
-    return parseFloat(num.toFixed(5));
+    return parseFloat(num.toFixed(3));
 }
 
 function formatLatex(num) {
     if (Math.abs(num) < 1e-15) return '$0$';
     const exp = Math.floor(Math.log10(Math.abs(num)));
     const coeff = num / Math.pow(10, exp);
-    return `$${coeff.toFixed(3)} \\cdot 10^{${exp}}$`;
+    return `$${coeff.toFixed(1)} \\cdot 10^{${exp}}$`;
 }
 
 function generateMolarHTML() {
@@ -111,12 +111,12 @@ function generateMassHTML() {
                 <div class="result-item">
                     <span class="unit">${unit}:</span>
                     <div class="format-row">
-                        <div class="format-item sci-format"
-                             onclick="copyToClipboard(this.textContent, this)"
-                             id="ml_${i}_sci">0</div>
                         <div class="format-item plain-format"
                              onclick="copyToClipboard(this.textContent, this)"
                              id="ml_${i}_plain">0</div>
+                        <div class="format-item sci-format"
+                             onclick="copyToClipboard(this.textContent, this)"
+                             id="ml_${i}_sci">0</div>
                         <div class="format-item latex-format"
                              onclick="copyToClipboard(this.textContent, this)"
                              id="ml_${i}_latex">$0$</div>
@@ -130,12 +130,12 @@ function generateMassHTML() {
                 <div class="result-item">
                     <span class="unit">${unit}:</span>
                     <div class="format-row">
-                        <div class="format-item sci-format"
-                             onclick="copyToClipboard(this.textContent, this)"
-                             id="l_${i}_sci">0</div>
                         <div class="format-item plain-format"
                              onclick="copyToClipboard(this.textContent, this)"
                              id="l_${i}_plain">0</div>
+                        <div class="format-item sci-format"
+                             onclick="copyToClipboard(this.textContent, this)"
+                             id="l_${i}_sci">0</div>
                         <div class="format-item latex-format"
                              onclick="copyToClipboard(this.textContent, this)"
                              id="l_${i}_latex">$0$</div>

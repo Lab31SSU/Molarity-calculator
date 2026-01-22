@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <h1 style="text-align: center;">Калькулятор мольных концентраций</h1>
+    <h1 style="text-align: center;">Конвертер концентраций</h1>
 
     <div class="molar-mass-group">
         <label>Молекулярная масса (г/моль):</label>
@@ -25,7 +25,7 @@
     </div>
 
     <div class="input-group">
-        <label>Введите концентрацию:</label>
+        <label>Концентрация соединения:</label>
         <input
             type="text"
             id="concentration"
@@ -52,10 +52,12 @@
         </div>
     </div>
 
-    <div class="toggle-group">
-        <div class="toggle-btn active" data-type="molar">Мольная</div>
-        <div class="toggle-btn" data-type="mass">Массовая</div>
+<div class="toggle-group">
+    <div class="toggle-container">
+        <button class="toggle-btn active" data-type="molar">Мольная</button>
+        <button class="toggle-btn" data-type="mass">Массовая</button>
     </div>
+</div>
 
     <div class="results" id="results" style="display: none;">
         <div class="results-grid" id="resultsGrid"></div>
