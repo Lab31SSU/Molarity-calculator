@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 50px auto;
+    margin: 40px auto;
     padding: 20px;
 }
 
@@ -22,6 +22,7 @@ body {
     font-weight: bold;
     font-size: 1.2em;
     margin-bottom: 0;
+    margin-left: 0;
 }
 
 .input-group {
@@ -39,13 +40,14 @@ label {
     font-weight: bold;
     font-size: 1.2em;
     margin-bottom: 0;
+    margin-left: 0;
 }
 
 input {
     padding: 15px;
-    font-size: 20px;
+    font-size: 25px;
     width: 100%;
-    max-width: 300px;
+    max-width: 295px;
     border: 2px solid #007bff;
     border-radius: 8px;
     text-align: center;
@@ -76,7 +78,7 @@ input {
     font-size: 13px;
     transition: all 0.2s;
     white-space: nowrap;
-    min-width: 72px;
+    min-width: 70px;
     height: 36px;
     text-align: center;
     box-sizing: border-box;
@@ -89,33 +91,32 @@ input {
     color: white;
 }
 
-/* Переключатель с одинаковыми скруглениями */
-.toggle-group {
+
+ 	.toggle-group {
     display: flex;
     justify-content: flex-start;
-    gap: 10px;
-    margin: 20px auto;
+    margin: 30px auto 0 auto;
     max-width: 700px;
-    padding-left: 20px;
+    width: 100%;
 }
-
-.toggle-container {
+    
+    .toggle-container {
     display: flex;
     background: #ffffff;
     border: 2px solid #007bff;
-    border-radius: 5px;  /* ← Одинаковые со unit-btn */
+    border-radius: 5px;
     padding: 2px;
     width: 100%;
-    max-width: 300px;
+    max-width: 295px;  /* ← Такая же ширина как у input */
 }
 
 .toggle-btn {
-    height: 36px;  /* ← Одинаковая высота с unit-btn */
+    height: 36px; 
     padding: 0 20px;
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 3px;  /* ← Меньше, чтобы помещались в контейнер */
+    border-radius: 3px; 
     font-size: 13px;
     font-weight: 500;
     color: #007bff;
@@ -137,15 +138,18 @@ input {
 }
 
 .results {
-    margin: 30px auto;
+    display: flex;
+    margin: auto 0 10px 0;
+    justify-content: flex-start;
     background: #ffffff;
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
-    width: 85%;
+    width: 100%;
     max-width: 1500px;
     box-sizing: border-box;
     box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
+
 
 .result-item {
     display: flex;
@@ -160,29 +164,64 @@ input {
     border-bottom: none;
 }
 
+.results-grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    margin: 10px auto;
+}
+
+.results-column.full-width {
+    margin: 0 0 10px 0;
+    width: 97%;
+    max-width: 1000px;
+}
+
+.results-column {
+    background: white;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 97%;
+    max-width: 1000px;
+}
+
+.column-title {
+    text-align: left;
+    margin-bottom: 10px;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
 .unit {
     font-weight: bold;
     color: #007bff;
-    width: 60px;
+    width: 100px;
+    min-width: 50px;
     flex-shrink: 0;
 }
 
 .format-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex: 1;
     min-width: 0;
 }
 
 .format-item {
     font-family: monospace;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
-    padding: 4px 6px;
+    padding: 2px 3px;
     border-radius: 4px;
     transition: all 0.2s;
     flex: 1;
-    text-align: right;
+    text-align: left;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -194,44 +233,16 @@ input {
 }
 
 .sci-format {
-    color: #dc3545;
+    color: #000000;
 }
 
 .plain-format {
-    color: #28a745;
+    color: #000000;
     font-weight: bold;
 }
 
 .latex-format {
-    color: #6f42c1;
-}
-
-.results-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-}
-
-.results-column.full-width {
-    margin: 30px auto;
-    width: 97%;
-}
-
-.results-column {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
-}
-
-.column-title {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 16px;
+    color: #000000;
 }
 
 .copied {
@@ -254,7 +265,7 @@ input {
     .molar-mass-group,
     .input-group {
         width: 100%;
-        margin: 0 0 20px 0;
+        margin: 0 0 10px 0;
         align-items: flex-start;
         padding-left: 0;
     }
@@ -262,7 +273,7 @@ input {
  	.toggle-group {
     display: flex;
     justify-content: flex-start;
-    margin: 20px auto;
+    margin: 0 0 10px 0;
     max-width: 700px;
     width: 100%;
 }
@@ -297,7 +308,7 @@ input {
     
     .results {
         width: 100%;
-        margin: 20px 0;
-        padding: 15px;
+        margin: 0 0 10px 0;
+        padding: 0px;
     }
 }

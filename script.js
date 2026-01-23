@@ -79,7 +79,6 @@ function generateMolarHTML() {
     const ids = ['pm', 'nm', 'mkm', 'mm', 'm'];
     return `
         <div class="results-column full-width">
-            <div class="column-title">Молярные концентрации</div>
             ${units.map((unit, i) => `
                 <div class="result-item">
                     <span class="unit">${unit}:</span>
@@ -101,12 +100,10 @@ function generateMolarHTML() {
 }
 
 function generateMassHTML() {
-    const units_ml = ['пг/мл', 'нг/мл', 'мкг/мл', 'мг/мл'];
-    const units_l  = ['пг/л', 'нг/л', 'мкг/л', 'мг/л'];
+    const units_ml = ['пг/мл; пг/л', 'нг/мл; нг/л', 'мкг/мл; мкг/л', 'мг/мл; мг/л'];
 
     return `
-        <div class="results-column">
-            <div class="column-title">Массовая (мл)</div>
+        <div class="results-column full-width">
             ${units_ml.map((unit, i) => `
                 <div class="result-item">
                     <span class="unit">${unit}:</span>
@@ -120,25 +117,6 @@ function generateMassHTML() {
                         <div class="format-item latex-format"
                              onclick="copyToClipboard(this.textContent, this)"
                              id="ml_${i}_latex">$0$</div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        <div class="results-column">
-            <div class="column-title">Массовая (л)</div>
-            ${units_l.map((unit, i) => `
-                <div class="result-item">
-                    <span class="unit">${unit}:</span>
-                    <div class="format-row">
-                        <div class="format-item plain-format"
-                             onclick="copyToClipboard(this.textContent, this)"
-                             id="l_${i}_plain">0</div>
-                        <div class="format-item sci-format"
-                             onclick="copyToClipboard(this.textContent, this)"
-                             id="l_${i}_sci">0</div>
-                        <div class="format-item latex-format"
-                             onclick="copyToClipboard(this.textContent, this)"
-                             id="l_${i}_latex">$0$</div>
                     </div>
                 </div>
             `).join('')}
