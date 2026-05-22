@@ -100,23 +100,23 @@ function generateMolarHTML() {
 }
 
 function generateMassHTML() {
-    const units_ml = ['пг/мл; пг/л', 'нг/мл; нг/л', 'мкг/мл; мкг/л', 'мг/мл; мг/л'];
+    const units = ['пг/мл = нг/л', 'нг/мл = мкг/л', 'мкг/мл = мг/л', 'мг/мл = г/л'];
 
     return `
         <div class="results-column full-width">
-            ${units_ml.map((unit, i) => `
+            ${units.map((unit, i) => `
                 <div class="result-item">
                     <span class="unit">${unit}:</span>
                     <div class="format-row">
                         <div class="format-item plain-format"
                              onclick="copyToClipboard(this.textContent, this)"
-                             id="ml_${i}_plain">0</div>
+                             id="mass_${i}_plain">0</div>
                         <div class="format-item sci-format"
                              onclick="copyToClipboard(this.textContent, this)"
-                             id="ml_${i}_sci">0</div>
+                             id="mass_${i}_sci">0</div>
                         <div class="format-item latex-format"
                              onclick="copyToClipboard(this.textContent, this)"
-                             id="ml_${i}_latex">$0$</div>
+                             id="mass_${i}_latex">$0$</div>
                     </div>
                 </div>
             `).join('')}
@@ -152,22 +152,15 @@ function calculate() {
     } else {
         document.getElementById('resultsGrid').innerHTML = generateMassHTML();
         
-        const mass_g_per_l = molar * MOLAR_MASS;
-        const ml_mult = [1e6, 1e3, 1, 1e-3];
-        const l_mult  = [1e9, 1e6, 1e3, 1];
-
-        ml_mult.forEach((mult, i) => {
-            const val = mass_g_per_l * 1000 * mult;
-            document.getElementById(`ml_${i}_sci`).innerHTML = formatScientific(val);
-            document.getElementById(`ml_${i}_plain`).textContent = formatPlain(val);
-            document.getElementById(`ml_${i}_latex`).textContent = formatLatex(val);
-        });
-
-        l_mult.forEach((mult, i) => {
+        const mass_g_per_l = molar *  MOLAR_MASS;
+        
+        const massMultipliers = [1e9, 1e6, 1e3, 1];
+        
+        massMultipliers.forEach((mult, i) => {
             const val = mass_g_per_l * mult;
-            document.getElementById(`l_${i}_sci`).innerHTML = formatScientific(val);
-            document.getElementById(`l_${i}_plain`).textContent = formatPlain(val);
-            document.getElementById(`l_${i}_latex`).textContent = formatLatex(val);
+            document.getElementById(`mass_${i}_sci`).innerHTML = formatScientific(val);
+            document.getElementById(`mass_${i}_plain`).textContent = formatPlain(val);
+            document.getElementById(`mass_${i}_latex`).textContent = formatLatex(val);
         });
     }
 
